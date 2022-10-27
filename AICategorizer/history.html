@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.js"
+  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+  crossorigin="anonymous"></script>
+    <link href="static/css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+    <title>History</title>
+<head>
+
+</head>
+<body>
+    <nav>
+        <button type="button" class="btn btn-primary justify-content-sm-center pressed"
+            onclick="location.href='https://rel8ed.to'">
+            rel8ed.to
+        </button>
+        <button type="button" class="btn btn-primary justify-content-sm-center depressed" onclick="location.href='/'">
+            home
+        </button>
+    </nav>
+    <p>This is a temporary demo, results may be deleted</p>
+    <table id="files">
+        <tbody>
+
+        </tbody>
+    </table>
+
+
+    <script>
+        var rawdata = '{{ data|safe }}';
+
+        
+        var fileNames = JSON.parse(rawdata);
+
+        for (i in fileNames) {
+            var name = fileNames[i];
+            $("#files").append("<p><a href='static/savedata/" + name + "' download>" + name + "</p></a>");
+        }
+
+
+     /*   $.ajax(
+            {
+                url: '/history',
+                type: 'GET',
+                success: function(data) {
+                    console.log("WOW");
+                    console.log(data);
+                    console.log(JSON.parse(data));
+                }
+            }
+        ) */
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="static/img/favicon.png">
+
+    <!-- <link href="static/css/search.css" rel="stylesheet" type="text/css"> -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.print.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <nav>
+        <button type="button" class="btn btn-primary justify-content-sm-center pressed"
+            onclick="location.href='https://rel8ed.to'">
+            rel8ed.to
+        </button>
+        <button type="button" class="btn btn-primary justify-content-sm-center depressed" onclick="location.href='/'">
+            home
+        </button>
+    </nav>
+    <h1 align='center'>Check the keywords generated</h1>
+    <!-- <div id="background" class="text-center"> -->
+    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-header">
+            <h1 class="text-white">AI engine might need few minutes to get result, please relax</h1>
+        </div>
+        <div class="modal-body">
+            <div id="ajax_loader">
+                <img src="static/img/ai-loading.gif" style="display: block; margin-left: auto; margin-right: auto;">
+            </div>
+        </div>
+    </div>
+    <div class="row m-1" style="width:100%">
+        <div class="col-2">
+            Good Urls
+                <select multiple="multiple" id="good"
+                    style="width: 100%;height: 80%;background-color: rgb(146, 208, 219);"></select>
+        </div>
+        <div class="col-8">
+            1 of 3 <table id="resulttable" class="display" width="80%"></table>
+        </div>
+        <div class="col-2">
+            Bad Url
+                <select multiple="multiple" id="bad"
+                    style="width: 100%;height: 80%;background-color: rgb(189, 118, 85);"></select>
+        </div>
+    </div>
+
+
+
+    <div class="row m-1">
+        <div class="col-2">
+            <div class="row m-1">
+                <button id='goodrows' class='btn btn-success '>add selected to good</button>
+            </div>
+
+            <div class="row m-1">
+                <a name="" id="clearselectedgood" class="btn btn-primary" href="#" role="button">clear selection</a>
+            </div>
+            <div class="row m-1">
+                <a name="" id="cleargood" class="btn btn-primary" href="#" role="button">clear all</a>
+            </div>
+
+            <div class="row m-1">
+                <div class="custom-select" style="width:200px;">
+                    <select id="go-selector">
+                        <option value="0">open selected urls</option>
+                           <option value="1">send to webcorp</option>
+                    </select>
+                </div>
+                <button id="go-button">go</button>
+            </div>
+        </div>
+        <div class="col-8 text-center">
+            <button id='Rescoring' class='btn btn-warning'>AI Rescoring</button>
+        </div>
+        <div class="col-2">
+            <div class="row">
+                <button id='badrows' class='btn btn-danger'>add selected to bad</button>
+            </div>
+            <div class="row">
+                <a name="" id="clearselectedbad" class="btn btn-primary" href="#" role="button">clear selection</a>
+            </div>
+            <div class="row">
+                <a name="" id="clearbad" class="btn btn-primary" href="#" role="button">clear all</a>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var returndataraw = '{{ data|safe }}';
+        returndata = JSON.parse(returndataraw);
+
+        // var columns = Object.keys(data[0]).map((x) => { return { "title": x } });
+        var columns = returndata['columns'].map((x) => { return { "title": x } });
+        var vals = returndata['data'];
+        
+        $(document).ready(function () {
+
+            var table = $('#resulttable').DataTable({
+                data: vals,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                "lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]],
+                columns: columns,
+                order: [[4, "desc"]],
+                "columnDefs": [
+                    {
+                        "targets": [4],
+                        "visible": false
+                    }
+                ]
+            });
+            
+
+            $('#resulttable tbody').on('click', 'tr', function () {
+                $(this).toggleClass('selected');
+            });
+
+
+            var keywordselected = table.rows().data().map(x => x[0]).join(';');
+            $('#kwinput').val(keywordselected.toString());
+            
+
+            $('#goodrows').click(function () {
+                var goodurls = $('#good option').map((index, option) => option.value).toArray()
+
+                var keywordselected = table.rows('.selected').data();
+                table.rows().deselect();
+                var urls = keywordselected.slice(1, keywordselected.length).map(x => x[0]).toArray();
+                // console.log(urls);
+                for (url of urls) {
+                    if (goodurls.includes(url)) {
+                        continue;
+                    }
+                    $('#good').append($('<option>', {
+                        value: url,
+                        text: url
+                    }))
+                }
+            });
+
+
+            $('#badrows').click(function () {
+
+                var keywordselected = table.rows('.selected').data();
+                var badurls = $('#bad option').map((index, option) => option.value).toArray()
+                table.rows().deselect();
+                var urls = keywordselected.slice(1, keywordselected.length).map(x => x[0]).toArray();
+                // console.log(urls);
+                for (url of urls) {
+                    if (badurls.includes(url)) {
+                        continue;
+                    }
+                    $('#bad').append($('<option>', {
+                        value: url,
+                        text: url
+                    }));
+                }
+            });
+
+
+            $('#Rescoring').click(function () {
+                // var tabledata = JSON.stringify(table.rows().data());
+                // var tabledata = table.rows().data().toArray();
+                
+                var cols = returndata['columns'];
+                var goodurls = $('#good option').map((index, option) => option.value).toArray()
+                var badurls = $('#bad option').map((index, option) => option.value).toArray()
+                if (goodurls.length == 0 && badurls.length == 0) {
+                    alert('Please select at least one url in either good or bad');
+                    return;
+                }
+
+                $('#pleaseWaitDialog').modal();
+
+                $.ajax(
+                    {
+                        url: '/rescoring',
+                        type: 'POST',
+                        data: {
+                            goodurls: goodurls,
+                            badurls: badurls,
+                            tabledata: returndataraw,
+                            cols: cols
+                        },
+                        success: function (data) {
+                            var newdata = JSON.parse(data);
+                            // if(data.includes('"error":')){
+                            //     alert(newdata['error']);
+                            //     $('#pleaseWaitDialog').modal('hide');
+                            //     return;
+                            // }
+                            var newcolumns = newdata['columns'].map((x) => { return { "title": x } });
+                            var newvals = newdata['data'];
+                            // console.log(newcolumns);
+                            // console.log(newvals);
+                            table.clear();
+                            table.columns.adjust(newcolumns).draw();
+                            table.rows.add(newvals).draw();
+                            $('#pleaseWaitDialog').modal('hide');
+                        }
+                    }
+                )
+            });
+
+
+            $('#cleargood').click(function () {
+                $('select#good').empty();
+            });
+
+            $('#clearbad').click(function () {
+                $('select#bad').empty();
+            });
+
+
+            $('#go-button').click(function() {
+                var selectedKeywords = table.rows('.selected').data();
+                var urls = selectedKeywords.slice(1, selectedKeywords.length).map(x => x[0]).toArray();
+                var value = document.getElementById("go-selector").value;
+
+                switch (value)
+                {
+                    case "0":
+                        openSelectedUrls(urls);
+                        break;
+                    case "1":
+                        sendToWebToCorp(urls);
+                        break;
+                }
+            });
+
+            function openSelectedUrls(urls) {
+                for (url of urls) {
+                    window.open("http://" + url, url);
+                }
+            }
+
+            function sendToWebToCorp(urls) {
+                alert("Not implemented");
+            }
+
+
+            $('#clearselectedgood').click(function() { clearSelection("good") });
+            $('#clearselectedbad').click(function() { clearSelection("bad") });
+
+            function clearSelection(selectionId) {
+                var selection = document.getElementById(selectionId);
+                var options = selection.querySelectorAll("option");
+
+                for (option of options) {
+                    if (option.selected) {
+                        option.remove();
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>

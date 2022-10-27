@@ -1,0 +1,15 @@
+@charset "utf-8";
+body textarea {
+	margin: 5px 5px 5px 5px;
+	width: 95% !important;
+}
+#searchfield {
+	margin: 5px 15% 5px 15%;
+}
+#hint {
+    color: #003D87
+}
+#background {
+    padding: 5px 20% 5px 20%;
+    margin: 5px;
+}

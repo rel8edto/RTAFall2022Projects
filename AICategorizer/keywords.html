@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>url page</title>
+    <link rel="shortcut icon" href="static/img/favicon.png">
+    <link href="static/css/search.css" rel="stylesheet" type="text/css">
+    <link href="static/css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" charset="utf8" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+
+<body>
+    <nav>
+        <button type="button" class="btn btn-primary justify-content-sm-center pressed"
+            onclick="location.href='https://rel8ed.to'">
+            rel8ed.to
+        </button>
+        <button type="button" class="btn btn-primary justify-content-sm-center depressed" onclick="location.href='/'">
+            home
+        </button>
+    </nav>
+    <h1 align="center">Using Keywords to find companies</h1>
+    <p align="center" id="hint">input your search criteron here (each line for one entry)</p>
+    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-header">
+            <h1>AI engine might need few minutes to get result, please relax</h1>
+        </div>
+        <div class="modal-body">
+            <div id="ajax_loader">
+                <img src="static/img/ai-loading.gif" style="display: block; margin-left: auto; margin-right: auto;">
+            </div>
+        </div>
+    </div>
+    <div class="row" id="searchfield">
+        <div class="row" style="width: 100%;">
+            <label class="text-primary">Choose Region:</label>
+            <select name="region" id="chooseregion" style="width: 80%;">
+                <option disabled selected value> -- select an region -- </option>
+                <option value="North America">North America</option>
+                <option value="Middle East & Africa"> Middle East & Africa</option>
+                <option value="Western Europe"> Western Europe</option>
+                <option value="Central & Eastern Europe"> Central & Eastern Europe</option>
+                <option value="Latin America"> Latin America</option>
+                <option value="APeJC">APeJC</option>
+                <option value="East Asia">East Asia</option>
+            </select><br>
+            <label class="text-primary" style="width: 100%;">Choose countries:
+            <select name="countries" multiple="multiple" id="countrySelect" style="width: 80%;">
+            </select></label>
+            <label class="text-primary" style="width: 100%;">Choose cities:
+            <select name="cities" multiple="multiple" id="citySelect" style="width: 80%;">
+            </label></select>
+            <!-- <label class="text-danger">
+                <input type="checkbox" name="country2city" value="country2city" id="country2city">
+                use top cities in the country</label> -->
+        </div>
+
+        <div class="row">
+            <label for="keywords" class="text-primary">Input search terms here (one line one term):</label>
+            <textarea rows="10" cols="120" placeholder="keywords here" id="keywords"></textarea>
+        </div>
+        <div class="row">
+            <label for="naics" class="text-primary">choose naics codes (coming soon):</label>
+            <textarea rows="5" cols="120" placeholder="NaicsCode here (optional)" id=naics disabled></textarea>
+        </div>
+
+    </div>
+    <p class="text-center">
+        <label>
+            <input type="checkbox" name="CheckboxGroup1" value="elasticsearch" id="CheckboxGroup1_1" c>
+            rel8ed.to website database
+        </label>
+        <label>
+            <input type="checkbox" name="CheckboxGroup1" value="bing" id="CheckboxGroup1_0">
+            Internet Search
+        </label>
+
+        <label class="pl-3">
+            <input type="checkbox" name="CheckboxGroup1" value="use-custom" id="CheckboxGroup1_2" c>
+            use custom
+        </label>
+        <select id="custom-data-selector" style="width: 200px">
+        </select>
+    </p>
+    <div class="text-center">
+        <p>email me the result to: <input type="text" id="emails" placeholder="emails separated by ; "></p>
+        <p class="text-danger" id='cost'></p>
+        <button type="button" class="btn btn-primary justify-content-sm-center" id="findcompanies">Calculate Cost</button>
+        <br>
+        <span class="text-danger">Using "internet search" or "company database" may take long scraping time</span>
+    </div>
+    <script>
+        var keywordlist = '{{ keywords }}';
+        keywordlist = keywordlist.split(';').join('\n');;
+        $('#keywords').val(keywordlist);
+
+        function addOptions(path, data, type='city') {
+            $(path).empty();
+            if (type === 'city') {
+                $(path).append('<option value="' + 'all cities' + '">' + 'top 50 cities in each country' + '</option>');
+            } else if (type === 'country') {
+                $(path).append('<option value="' + 'all countries' + '">' + 'all countries and cities in region. ' + '</option>');
+            }
+            
+            for (d of data) {
+                $(path).append('<option value="' + d + '">' + d + '</option>');
+            }
+        }
+
+       
+
+        function getcountries() {
+            var region = $('#chooseregion').val();
+            var country = $('#countrySelect').val();
+            $.ajax({
+                url: '/countrylist',
+                type: 'GET',
+                data: {
+                    region: region,
+                },
+                success: function(data) {
+                    data = JSON.parse(data);
+                    console.log(data);
+                    addOptions('#countrySelect', data,'country');
+                    
+                }
+            });
+        }
+
+        function getcities() {
+            var region = $('#chooseregion').val();
+            var country = $('#countrySelect').val();
+            console.log(country);
+            $.ajax({
+                url: '/citylist',
+                type: 'GET',
+                data: {
+                    region: region,
+                    country: country
+                },
+                success: function(data) {
+                    data = JSON.parse(data);
+                    console.log(data);
+                    addOptions('#citySelect', data);
+                }
+            });
+        }
+
+        function getCustomData() {
+            $.ajax({
+                url: '/customdata',
+                type: 'GET',
+                success: function(data) {
+                    data = JSON.parse(data);
+                    addOptions('#custom-data-selector', data, 'none');
+                }
+            });
+        }
+
+        getCustomData();
+
+        $(function () {
+            $('#countrySelect').select2();
+            $('#citySelect').select2();
+
+            $('#chooseregion').change(getcountries);
+            $('#countrySelect').change(getcities);
+
+            $('#countrySelect').click(getcountries);
+            $('#citySelect').change(function(){
+                $('#findcompanies').text('Calculate Cost');
+            });
+            $('#CheckboxGroup1_0').change(function(){
+                $('#findcompanies').text('Calculate Cost');
+            })
+            $('#keywords').change(function(){
+                $('#findcompanies').text('Calculate Cost');
+            })
+            $('#findcompanies').click(function () {
+                $('#pleaseWaitDialog').show();
+                var keywords = $('#keywords').val();
+                var country = $('#countrySelect').val();
+                var cities = $('#citySelect').val();
+                var naics = $('#naics').val();
+                var region = $('#chooseregion').val();
+                var elasticsearch = $('#CheckboxGroup1_1').is(':checked');
+                var bing = $('#CheckboxGroup1_0').is(':checked');
+                var useCustomData = $('#CheckboxGroup1_2').is(':checked');
+                var customData = $('#custom-data-selector').val();
+
+                // var metadata = $('#CheckboxGroup1_2').is(':checked');
+                var form = $("<form action='/searchcorps' method='post'></form>");
+                var emails = $('#emails').val();
+                if (keywords == '' && naics == '') {
+                    alert('please input keywords');
+                    $('#pleaseWaitDialog').hide();
+                    return;
+                }
+                if (country == '' && cities == '' && useCustomData == false) {
+                    alert(`please choose your countries or cities your search ${country}, and city ${cities}`);
+                    $('#pleaseWaitDialog').hide();
+                    return;
+                }
+                
+                if (elasticsearch == false && bing == false && useCustomData == false) {
+                    alert('please choose at least one search engine');
+                    $('#pleaseWaitDialog').hide();
+                    return;
+                }
+                if($('#findcompanies').text() != 'Find Companies'){
+                    console.log('cost is empty');
+                    $.ajax({
+                        url: '/searchcorps',
+                        type: 'POST',
+                        data: {
+                            keywords: keywords,
+                            country: country.join(','),
+                            cities: cities.join(','),
+                            naics: naics,
+                            region: region,
+                            elasticsearch: elasticsearch,
+                            bing: bing,
+                            // metadata: metadata,
+                            cost: 'Yes'
+                        },
+                        success: function(data) {
+                            alert(' the cost for the search is:\n $ '+data);
+                            $('#findcompanies').text('Find Companies');
+                            $('#pleaseWaitDialog').hide();
+                        }
+                    });
+                    return
+                }
+
+                form.append("<input type='hidden' name='keywords' value='" + keywords + "'>");
+                form.append("<input type='hidden' name='region' value='" + region + "'>");
+                form.append("<input type='hidden' name='country' value='" + country + "'>");
+                form.append("<input type='hidden' name='cities' value='" + cities + "'>");
+                form.append("<input type='hidden' name='naics' value='" + naics + "'>");
+                form.append("<input type='hidden' name='elasticsearch' value='" + elasticsearch + "'>");
+                form.append("<input type='hidden' name='bing' value='" + bing + "'>");
+                form.append("<input type='hidden' name='usecustomdata' value='" + useCustomData + "'>");
+                form.append("<input type='hidden' name='customparquetname' value='" + customData + "'>");
+                // form.append("<input type='hidden' name='metadata' value='" + metadata + "'>");
+                form.append("<input type='hidden' name='emails' value='" + emails + "'>");
+                $('body').append(form);
+                form.submit();
+                // $('#pleaseWaitDialog').modal('hide');
+                // $('body').clear();
+                // $('body').append(' <img src="static/img/ai-loading.gif" style="display: block; margin-left: auto; margin-right: auto;">');
+
+            })
+        });
+
+
+    </script>
+</body>
+
+</html>

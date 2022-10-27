@@ -1,0 +1,1 @@
+The html templates currently used in the AICategorizer

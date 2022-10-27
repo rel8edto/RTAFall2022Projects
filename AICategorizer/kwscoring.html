@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Keywords scoring</title>
+    <link href="static/css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" charset="utf8" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav>
+        <button type="button" class="btn btn-primary justify-content-sm-center pressed"
+            onclick="location.href='https://rel8ed.to'">
+            rel8ed.to
+        </button>
+        <button type="button" class="btn btn-primary justify-content-sm-center depressed" onclick="location.href='/'">
+            home
+        </button>
+    </nav>
+    <div class="p-4">
+        <h1>Score the file or url list base on the keywords</h1>
+
+        <form method="POST" action="kwscoring" enctype="multipart/form-data" target="_blank">
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="starttext"><input type="radio" id="starttext" name="mode" value="starttext"
+                                    checked>start with text file</label>
+                        </div>
+                        <div class="col-4">
+                            <label for="starturl"><input type="radio" id="starturlfile" name="mode"
+                                    value=starturlfile>start
+                                with url file</label>
+                        </div>
+                        <div class="col-4">
+                            <label for="inputurl"><input type="radio" id="inputurl" name="mode" value="inputurl">start
+                                with input urls</label>
+
+                        </div>
+                    </div>
+                    <div class="row p-4">
+                        <div class="row" id="uploadfile">
+                            <p><input type="file" name="file" id="uploadfile"></p><br>
+                        </div>
+
+
+                        <div id="fromtext" class="row">
+                            <p><label for="textcol">Text Colum Name: (leave blank with auto pick the longest
+                                    col)</label>
+                            </p>
+                            <p><input type="text" name="textcol"></p>
+
+                        </div>
+                        <div id="fromurlfile" class="row">
+                            <p><label for="urlcol">Url Colum Name: </label></p>
+                            <p><input type="text" name="urlcol"></p>
+                            <hr>
+                        </div>
+                        <div id="fromurliput" class="row">
+
+                            <!-- <p><label for="urlinput"> </label></p> -->
+                            <p><textarea name="urlinput" rows=10 cols="50"
+                                    placeholder="input your urls here, each line one url:"></textarea></p>
+                            <hr>
+                        </div>
+                        <div id="emailinput" class="row">
+                            <label for="filetype">Select filetype:</label>
+                            <select name="filetype" id="filetype">
+                                <option value="xlsx" selected>excel</option>
+                                <option value="csv">csv</option>
+                            </select>
+                            <p>this may takes long time, we will send results to your email, if you have more than one
+                                email use ';' seprate them eg. abc@rel8ed.to;xyz@rel8ed.to</p>
+                            <input type="text" name="email" placeholder="your email">
+                        </div>
+
+
+                        <br>
+
+                    </div>
+                    <div class="row" id="submit">
+                        <p><input type="submit" onclick="submitmsg()" value="Submit" placeholder="text Column name" style="background-color: coral;"></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <p class="text-danger">Input your keywords here, each line one keyword:</p>
+                    <textarea name="keywords" id="keywords" cols="60" rows="20"></textarea>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <h3 class="text-danger">NOTE: Solve Excel Encoding Issue see below (or just upload to google sheets):</h3><br>
+        </div>
+        <div class="row">
+            <img src="static/img/solveExcelEncoding.png" alt="" width="60%">
+        </div>
+
+
+    </div>
+
+
+    <script>
+        $(function () {
+            $("#fromurlfile").hide();
+            $("#fromurliput").hide();
+            $("#emailinput").hide();
+            $("#starttext").click(function () {
+                $("#fromtext").show();
+                $("#fromurlfile").hide();
+                $("#fromurliput").hide();
+                $("#uploadfile").show();
+                $("#emailinput").hide();
+            });
+            $("#starturlfile").click(function () {
+                $("#fromtext").hide();
+                $("#fromurlfile").show();
+                $("#fromurliput").hide();
+                $("#uploadfile").show();
+                $("#emailinput").show();
+            });
+            $("#inputurl").click(function () {
+                $("#fromtext").hide();
+                $("#fromurlfile").hide();
+                $("#fromurliput").show();
+                $("#uploadfile").hide();
+                $("#emailinput").show();
+            });
+        });
+
+        function submitmsg(){
+            if($("#starttext").is(':checked')){
+                return
+            }else{
+                var email = $("#emailinput").val();
+                alert(`the url approach may take long time, system will send you the result when finished: ${email}`);
+            }
+        }
+    </script>
+</body>
+
+</html>

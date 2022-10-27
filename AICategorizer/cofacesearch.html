@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="static/img/favicon.png">
+
+    <!-- <link href="static/css/search.css" rel="stylesheet" type="text/css"> -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.print.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <nav>
+        <button type="button" class="btn btn-primary justify-content-sm-center pressed"
+            onclick="location.href='https://rel8ed.to'">
+            rel8ed.to
+        </button>
+        <button type="button" class="btn btn-primary justify-content-sm-center depressed" onclick="location.href='/'">
+            home
+        </button>
+    </nav>
+    <h1 class='text-center'>Coface AI search</h1>
+    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-header">
+            <h1 class="text-white">AI engine might need few minutes to get result, please relax</h1>
+        </div>
+        <div class="modal-body">
+            <div id="ajax_loader">
+                <img src="static/img/ai-loading.gif" style="display: block; margin-left: auto; margin-right: auto;">
+            </div>
+        </div>
+    </div>
+    <!-- <div id="background" class="text-center"> -->
+    <div class="text-center">
+        <label for="aisearch">AI search</label><br>
+        <textarea name="aisearch" id="aisearch" cols="200" rows="5" placeholder="describe what you want"></textarea><hr>
+        <textarea name="aihate" id="aihate" cols="200" rows="5"  placeholder="describe what you don't want"></textarea><br>
+        <a id="search" class="btn btn-primary" href="#" role="button">Submit</a>
+    </div>
+    <hr>
+    <div class="text-center">
+        <table id="resulttable" class="display" width="80%"></table>
+    </div>
+    <script>
+        var returndataraw = '{{ data|safe }}';
+        var returndata = JSON.parse(returndataraw);
+        // var columns = Object.keys(data[0]).map((x) => { return { "title": x } });
+        var columns = returndata['columns'].map((x) => { return { "title": x } });
+        var vals = returndata['data'];
+
+        $(document).ready(function () {
+            var table = $('#resulttable').DataTable({
+                data: vals,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                columns: columns,
+                "order": [[columns.length - 1, "desc"]]
+            });
+            $('#resulttable tbody').on('click', 'tr', function () {
+                $(this).toggleClass('selected');
+            });
+            var keywordselected = table.rows().data().map(x => x[0]).join(';');
+            $('#kwinput').val(keywordselected.toString());
+            // console.log(keywordselected)
+            $('#search').click(function () {
+                // var tabledata = JSON.stringify(table.rows().data());
+                // var tabledata = table.rows().data().toArray();
+                var cols = returndata['columns'];
+                $('#pleaseWaitDialog').modal();
+                $.ajax(
+                    {
+                        url: '/cofacesearch',
+                        type: 'POST',
+                        data: {
+                            aisearch: $('#aisearch').val(),
+                            aihate: $('#aihate').val(),
+                        },
+                        success: function (data) {
+                            var newdata = JSON.parse(data);
+                            var newcolumns = newdata['columns'].map((x) => { return { "title": x } });
+                            var newvals = newdata['data'];
+                            table.clear();
+                            table.rows.add(newvals).draw();
+                            $('#pleaseWaitDialog').modal('hide');
+                        }
+                    }
+                )
+
+
+            });
+
+        });
+
+    </script>
+</body>
+
+</html>

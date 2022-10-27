@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>url page</title>
+    <link rel="shortcut icon" href="static/img/favicon.png">
+    <link href="static/css/search.css" rel="stylesheet" type="text/css">
+    <link href="static/css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" charset="utf8" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+    <nav>
+        <button type="button" class="btn btn-primary justify-content-sm-center pressed"
+            onclick="location.href='https://rel8ed.to'">
+            rel8ed.to
+        </button>
+        <button type="button" class="btn btn-primary justify-content-sm-center depressed" onclick="location.href='/'">
+            home
+        </button>
+    </nav>
+    <h1 align="center">Using URLs to generate keywords</h1>
+    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-header">
+            <h1>AI engine might need few minutes to get result, please relax</h1>
+        </div>
+        <div class="modal-body">
+            <div id="ajax_loader">
+                <img src="static/img/ai-loading.gif" style="display: block; margin-left: auto; margin-right: auto;">
+            </div>
+        </div>
+    </div>
+    <div class="text-center text-danger" id="background">
+        <textarea rows="20" cols="120" placeholder="someurl.com"></textarea>
+        <div class="text-center">
+            <button type="button" id='generate' class="btn btn-primary justify-content-sm-center"
+                onclick="location.href = 'pickkeywords'">generate keywords from url</button>
+            <p class='text-danger font-italic'>the scraping would take a while depends on how many urls</p>
+        </div>
+    </div>
+    <script>
+        $('#generate').click(function () {
+            var urls = $('textarea').val();
+            $('#pleaseWaitDialog').modal();
+
+            if (urls == '') {
+                alert('please input a url');
+                return;
+            }
+
+            $('#pleaseWaitDialog').modal();
+            var form = $("<form action='/pickkeywords' method='post'></form>");
+            form.append("<input type='hidden' name='urls' value='" + urls + "'>");
+            $('body').append(form);
+            form.submit();
+            //$('#pleaseWaitDialog').modal('hide');
+        });
+    </script>
+
+</body>
+
+</html>
