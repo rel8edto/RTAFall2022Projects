@@ -1,0 +1,45 @@
+
+{"jobs":
+    [
+        {
+            "function":"checkPatterns",
+            "parameters":
+                {"Calendar": 
+                    {
+                        "category": "Calendar/archives", 
+                        "column": "Calendar", 
+                        "patterns": ["wp_calendar", "Calendar"]
+                    }, 
+                "News": 
+                    {
+                        "category": "News", 
+                        "column": "news", 
+                        "patterns": ["News", "news"]
+                    }, 
+                "Location": 
+                    {
+                        "category": "Location", 
+                        "column": "location", 
+                        "patterns": ["location", "search for location"]
+                    }
+                }
+        },
+
+
+        {
+            "function":"scrape_web",
+            "parameters":
+                {
+                    "meta_description": 
+                        {
+                            "column": "meta_description"
+                        },
+                    "homepage": 
+                        {
+                            "column": "homepage"
+                        }
+                    
+                }
+        }
+    ]
+}
